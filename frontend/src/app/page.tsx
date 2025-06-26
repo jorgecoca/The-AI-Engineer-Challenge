@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -119,7 +121,86 @@ export default function Home() {
                 : 'bg-white text-gray-800 shadow-md'
                 }`}
             >
-              {message.content}
+              {message.role === 'user' ? (
+                message.content
+              ) : (
+                <div className="markdown-content">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      // Custom styling for code blocks
+                      code: ({ className, children, ...props }: any) => {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const isInline = !match;
+                        return !isInline ? (
+                          <pre className="bg-gray-100 rounded p-3 overflow-x-auto my-3">
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          </pre>
+                        ) : (
+                          <code className="bg-gray-100 px-1 py-0.5 rounded text-sm" {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      // Custom styling for links
+                      a: ({ children, href }: any) => (
+                        <a href={href} className="text-emerald-600 hover:text-emerald-800 underline" target="_blank" rel="noopener noreferrer">
+                          {children}
+                        </a>
+                      ),
+                      // Custom styling for lists
+                      ul: ({ children }: any) => (
+                        <ul className="list-disc list-inside space-y-1 my-3">
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }: any) => (
+                        <ol className="list-decimal list-inside space-y-1 my-3">
+                          {children}
+                        </ol>
+                      ),
+                      // Custom styling for headings
+                      h1: ({ children }: any) => <h1 className="text-xl font-bold my-4 text-gray-900">{children}</h1>,
+                      h2: ({ children }: any) => <h2 className="text-lg font-bold my-3 text-gray-900">{children}</h2>,
+                      h3: ({ children }: any) => <h3 className="text-base font-bold my-2 text-gray-900">{children}</h3>,
+                      // Custom styling for paragraphs
+                      p: ({ children }: any) => <p className="my-2 leading-relaxed">{children}</p>,
+                      // Custom styling for blockquotes
+                      blockquote: ({ children }: any) => (
+                        <blockquote className="border-l-4 border-emerald-500 pl-4 italic my-3 text-gray-700">
+                          {children}
+                        </blockquote>
+                      ),
+                      // Custom styling for tables
+                      table: ({ children }: any) => (
+                        <div className="overflow-x-auto my-3">
+                          <table className="min-w-full border border-gray-300">
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      th: ({ children }: any) => (
+                        <th className="border border-gray-300 px-3 py-2 bg-gray-50 font-semibold text-left">
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }: any) => (
+                        <td className="border border-gray-300 px-3 py-2">
+                          {children}
+                        </td>
+                      ),
+                      // Custom styling for strong/bold text
+                      strong: ({ children }: any) => <strong className="font-semibold">{children}</strong>,
+                      // Custom styling for emphasis/italic text
+                      em: ({ children }: any) => <em className="italic">{children}</em>,
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              )}
             </div>
           </div>
         ))}
