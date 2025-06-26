@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { Components } from 'react-markdown';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -119,7 +120,12 @@ export default function Home() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e as any);
+      // Trigger form submission manually
+      const form = e.currentTarget.closest('form');
+      if (form) {
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        form.dispatchEvent(submitEvent);
+      }
     }
   };
 
@@ -152,7 +158,7 @@ export default function Home() {
                     remarkPlugins={[remarkGfm]}
                     components={{
                       // Custom styling for code blocks
-                      code: ({ className, children, ...props }: any) => {
+                      code: ({ className, children, ...props }) => {
                         const match = /language-(\w+)/.exec(className || '');
                         const isInline = !match;
                         return !isInline ? (
@@ -168,57 +174,57 @@ export default function Home() {
                         );
                       },
                       // Custom styling for links
-                      a: ({ children, href }: any) => (
+                      a: ({ children, href }) => (
                         <a href={href} className="text-emerald-600 hover:text-emerald-800 underline" target="_blank" rel="noopener noreferrer">
                           {children}
                         </a>
                       ),
                       // Custom styling for lists
-                      ul: ({ children }: any) => (
+                      ul: ({ children }) => (
                         <ul className="list-disc list-inside space-y-1 my-3">
                           {children}
                         </ul>
                       ),
-                      ol: ({ children }: any) => (
+                      ol: ({ children }) => (
                         <ol className="list-decimal list-inside space-y-1 my-3">
                           {children}
                         </ol>
                       ),
                       // Custom styling for headings
-                      h1: ({ children }: any) => <h1 className="text-xl font-bold my-4 text-gray-900">{children}</h1>,
-                      h2: ({ children }: any) => <h2 className="text-lg font-bold my-3 text-gray-900">{children}</h2>,
-                      h3: ({ children }: any) => <h3 className="text-base font-bold my-2 text-gray-900">{children}</h3>,
+                      h1: ({ children }) => <h1 className="text-xl font-bold my-4 text-gray-900">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-lg font-bold my-3 text-gray-900">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-base font-bold my-2 text-gray-900">{children}</h3>,
                       // Custom styling for paragraphs
-                      p: ({ children }: any) => <p className="my-2 leading-relaxed">{children}</p>,
+                      p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
                       // Custom styling for blockquotes
-                      blockquote: ({ children }: any) => (
+                      blockquote: ({ children }) => (
                         <blockquote className="border-l-4 border-emerald-500 pl-4 italic my-3 text-gray-700">
                           {children}
                         </blockquote>
                       ),
                       // Custom styling for tables
-                      table: ({ children }: any) => (
+                      table: ({ children }) => (
                         <div className="overflow-x-auto my-3">
                           <table className="min-w-full border border-gray-300">
                             {children}
                           </table>
                         </div>
                       ),
-                      th: ({ children }: any) => (
+                      th: ({ children }) => (
                         <th className="border border-gray-300 px-3 py-2 bg-gray-50 font-semibold text-left">
                           {children}
                         </th>
                       ),
-                      td: ({ children }: any) => (
+                      td: ({ children }) => (
                         <td className="border border-gray-300 px-3 py-2">
                           {children}
                         </td>
                       ),
                       // Custom styling for strong/bold text
-                      strong: ({ children }: any) => <strong className="font-semibold">{children}</strong>,
+                      strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                       // Custom styling for emphasis/italic text
-                      em: ({ children }: any) => <em className="italic">{children}</em>,
-                    }}
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                    } as Components}
                   >
                     {message.content}
                   </ReactMarkdown>
