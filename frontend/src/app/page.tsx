@@ -8,6 +8,23 @@ interface Message {
   content: string;
 }
 
+// Helper function to get the API URL based on environment
+const getApiUrl = () => {
+  // Check if we're in the browser
+  if (typeof window !== 'undefined') {
+    // If we're on localhost, use the local API
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://localhost:8000/api/chat';
+    }
+    // In production, use relative URL (same domain)
+    return '/api/chat';
+  }
+  // Server-side fallback
+  return process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8000/api/chat'
+    : '/api/chat';
+};
+
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -31,8 +48,11 @@ export default function Home() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
+    const apiUrl = getApiUrl();
+    console.log('Using API URL:', apiUrl); // Debug log
+
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
